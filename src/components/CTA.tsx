@@ -15,12 +15,9 @@ const CTA = () => {
     setIsLoading(true);
     
     try {
-      const { data, error } = await supabase.functions.invoke('send-notification', {
-        body: { 
-          email: email,
-          source: 'cta'
-        }
-      });
+      const { data, error } = await supabase
+        .from('email_signups')
+        .insert([{ email: email, source: 'cta' }]);
 
       if (error) {
         console.error('Error:', error);
@@ -30,7 +27,6 @@ const CTA = () => {
           variant: "destructive"
         });
       } else {
-        console.log('Success:', data);
         toast({
           title: "¡Estás en la lista de espera! 🎉",
           description: "Te notificaremos cuando HELWA FLAT esté disponible.",

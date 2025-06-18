@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
@@ -16,12 +15,9 @@ const Hero = () => {
     setIsLoading(true);
     
     try {
-      const { error } = await supabase.functions.invoke('send-notification', {
-        body: { 
-          email: email,
-          source: 'hero'
-        }
-      });
+      const { data, error } = await supabase
+        .from('email_signups')
+        .insert([{ email: email, source: 'hero' }]);
 
       if (error) {
         console.error('Error:', error);
