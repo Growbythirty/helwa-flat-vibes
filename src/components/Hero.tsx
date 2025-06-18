@@ -3,18 +3,49 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
 import { toast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 const Hero = () => {
   const [email, setEmail] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleNotifyMe = (e: React.FormEvent) => {
+  const handleNotifyMe = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (email) {
-      toast({
-        title: "You're on the list! 🎉",
-        description: "We'll notify you when HELWA FLAT launches.",
+    if (!email) return;
+
+    setIsLoading(true);
+    
+    try {
+      const { error } = await supabase.functions.invoke('send-notification', {
+        body: { 
+          email: email,
+          source: 'hero'
+        }
       });
-      setEmail("");
+
+      if (error) {
+        console.error('Error:', error);
+        toast({
+          title: "Error ❌",
+          description: "Hubo un problema. Por favor intenta de nuevo.",
+          variant: "destructive"
+        });
+      } else {
+        toast({
+          title: "¡Estás en la lista! 🎉",
+          description: "Te notificaremos cuando HELWA FLAT esté disponible.",
+        });
+        setEmail("");
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      toast({
+        title: "Error ❌",
+        description: "Hubo un problema. Por favor intenta de nuevo.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -49,12 +80,14 @@ const Hero = () => {
               onChange={(e) => setEmail(e.target.value)}
               className="flex-1 h-12 rounded-full border-2 border-pink-200 focus:border-pink-400"
               required
+              disabled={isLoading}
             />
             <Button 
               type="submit"
               className="h-12 px-8 bg-pink-500 hover:bg-pink-600 text-white rounded-full font-semibold"
+              disabled={isLoading}
             >
-              Get Notified
+              {isLoading ? "Enviando..." : "Get Notified"}
             </Button>
           </form>
           
