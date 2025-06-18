@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
@@ -16,7 +15,7 @@ const CTA = () => {
     setIsLoading(true);
     
     try {
-      const { error } = await supabase.functions.invoke('send-notification', {
+      const { data, error } = await supabase.functions.invoke('send-notification', {
         body: { 
           email: email,
           source: 'cta'
@@ -31,9 +30,10 @@ const CTA = () => {
           variant: "destructive"
         });
       } else {
+        console.log('Success:', data);
         toast({
-          title: "Welcome to the HELWA family! 💕",
-          description: "You'll be the first to know when we launch.",
+          title: "¡Estás en la lista de espera! 🎉",
+          description: "Te notificaremos cuando HELWA FLAT esté disponible.",
         });
         setEmail("");
       }
