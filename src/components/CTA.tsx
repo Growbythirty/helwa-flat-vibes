@@ -16,14 +16,14 @@ const CTA = () => {
     setError("");
 
     try {
-      // 1. Guardar en base de datos
+      // 1. Save to database
       const { data, error } = await supabase
         .from('email_signups')
         .insert([{ email, source: 'cta' }]);
       
       if (error) throw error;
 
-      // 2. Enviar email de bienvenida
+      // 2. Send welcome email
       try {
         await supabase.functions.invoke('send-welcome-email', {
           body: { email }
@@ -37,15 +37,15 @@ const CTA = () => {
       setEmail('');
       
       toast({
-        title: "¡Estás en la lista de espera! 🎉",
-        description: "Te notificaremos cuando HELWA FLAT esté disponible.",
+        title: "You're on the waitlist! 🎉",
+        description: "We'll notify you when HELWA FLAT is available.",
       });
     } catch (error) {
       console.error('Error:', error);
       setError('Error registering email');
       toast({
         title: "Error ❌",
-        description: "Hubo un problema. Por favor intenta de nuevo.",
+        description: "There was a problem. Please try again.",
         variant: "destructive"
       });
     } finally {
@@ -60,11 +60,11 @@ const CTA = () => {
           <div className="space-y-8">
             <div className="text-6xl">💕</div>
             <h2 className="text-4xl lg:text-5xl font-bold text-white">
-              ¡Bienvenida a la familia HELWA!
+              Welcome to the HELWA family!
             </h2>
             
             <p className="text-xl text-pink-100 max-w-2xl mx-auto">
-              Revisa tu email para confirmar tu suscripción y recibir actualizaciones exclusivas sobre HELWA FLAT.
+              Check your email to confirm your subscription and receive exclusive updates about HELWA FLAT.
             </p>
 
             <div className="flex justify-center space-x-8 text-pink-200">
@@ -116,7 +116,7 @@ const CTA = () => {
               className="h-14 px-8 bg-white text-pink-600 hover:bg-gray-100 rounded-full font-bold text-lg"
               disabled={isSubmitting}
             >
-              {isSubmitting ? "Enviando..." : "Get Notified"}
+              {isSubmitting ? "Sending..." : "Get Notified"}
             </Button>
           </form>
 

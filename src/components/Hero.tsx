@@ -16,14 +16,14 @@ const Hero = () => {
     setError("");
 
     try {
-      // 1. Guardar en base de datos
+      // 1. Save to database
       const { data, error } = await supabase
         .from('email_signups')
         .insert([{ email, source: 'hero' }]);
       
       if (error) throw error;
 
-      // 2. Enviar email de bienvenida
+      // 2. Send welcome email
       try {
         await supabase.functions.invoke('send-welcome-email', {
           body: { email }
@@ -37,15 +37,15 @@ const Hero = () => {
       setEmail('');
       
       toast({
-        title: "¡Estás en la lista! 🎉",
-        description: "Te notificaremos cuando HELWA FLAT esté disponible.",
+        title: "You're on the list! 🎉",
+        description: "We'll notify you when HELWA FLAT is available.",
       });
     } catch (error) {
       console.error('Error:', error);
       setError('Error registering email');
       toast({
         title: "Error ❌",
-        description: "Hubo un problema. Por favor intenta de nuevo.",
+        description: "There was a problem. Please try again.",
         variant: "destructive"
       });
     } finally {
@@ -59,14 +59,14 @@ const Hero = () => {
         <div className="max-w-2xl mx-auto text-center space-y-8">
           <div className="text-6xl">🎉</div>
           <h1 className="text-4xl lg:text-5xl font-bold text-gray-900">
-            ¡Gracias por unirte!
+            Thank you for joining!
           </h1>
           <p className="text-xl text-gray-600">
-            Serás la primera en saber cuando <span className="font-bold text-pink-500">HELWA FLAT</span> esté disponible.
+            You'll be the first to know when <span className="font-bold text-pink-500">HELWA FLAT</span> is available.
           </p>
           <div className="bg-pink-50 rounded-2xl p-6">
             <p className="text-gray-700">
-              Revisa tu email para confirmar tu suscripción y recibir actualizaciones exclusivas.
+              Check your email to confirm your subscription and receive exclusive updates.
             </p>
           </div>
         </div>
@@ -112,7 +112,7 @@ const Hero = () => {
               className="h-12 px-8 bg-pink-500 hover:bg-pink-600 text-white rounded-full font-semibold"
               disabled={isSubmitting}
             >
-              {isSubmitting ? "Enviando..." : "Get Notified"}
+              {isSubmitting ? "Sending..." : "Get Notified"}
             </Button>
           </form>
 
