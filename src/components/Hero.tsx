@@ -6,44 +6,68 @@ import { supabase } from "@/integrations/supabase/client";
 
 const Hero = () => {
   const [email, setEmail] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSubmitted, setIsSubmitted] = useState(false);
+  const [error, setError] = useState("");
 
-  const handleNotifyMe = async (e: React.FormEvent) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!email) return;
+    setIsSubmitting(true);
+    setError("");
 
-    setIsLoading(true);
-    
     try {
+      // 1. Guardar en base de datos
       const { data, error } = await supabase
         .from('email_signups')
-        .insert([{ email: email, source: 'hero' }]);
+        .insert([{ email, source: 'hero' }]);
+      
+      if (error) throw error;
 
-      if (error) {
-        console.error('Error:', error);
-        toast({
-          title: "Error ❌",
-          description: "Hubo un problema. Por favor intenta de nuevo.",
-          variant: "destructive"
-        });
-      } else {
-        toast({
-          title: "¡Estás en la lista! 🎉",
-          description: "Te notificaremos cuando HELWA FLAT esté disponible.",
-        });
-        setEmail("");
-      }
+      // 2. Enviar email de bienvenida
+      await supabase.functions.invoke('send-welcome-email', {
+        body: { email }
+      });
+      
+      setIsSubmitted(true);
+      setEmail('');
+      
+      toast({
+        title: "¡Estás en la lista! 🎉",
+        description: "Te notificaremos cuando HELWA FLAT esté disponible.",
+      });
     } catch (error) {
       console.error('Error:', error);
+      setError('Error registering email');
       toast({
         title: "Error ❌",
         description: "Hubo un problema. Por favor intenta de nuevo.",
         variant: "destructive"
       });
     } finally {
-      setIsLoading(false);
+      setIsSubmitting(false);
     }
   };
+
+  if (isSubmitted) {
+    return (
+      <section className="min-h-screen flex items-center justify-center bg-gradient-to-br from-pink-50 to-purple-50 px-4">
+        <div className="max-w-2xl mx-auto text-center space-y-8">
+          <div className="text-6xl">🎉</div>
+          <h1 className="text-4xl lg:text-5xl font-bold text-gray-900">
+            ¡Gracias por unirte!
+          </h1>
+          <p className="text-xl text-gray-600">
+            Serás la primera en saber cuando <span className="font-bold text-pink-500">HELWA FLAT</span> esté disponible.
+          </p>
+          <div className="bg-pink-50 rounded-2xl p-6">
+            <p className="text-gray-700">
+              Revisa tu email para confirmar tu suscripción y recibir actualizaciones exclusivas.
+            </p>
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section className="min-h-screen flex items-center justify-center bg-gradient-to-br from-pink-50 to-purple-50 px-4">
@@ -68,7 +92,7 @@ const Hero = () => {
             </p>
           </div>
 
-          <form onSubmit={handleNotifyMe} className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto lg:mx-0">
+          <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto lg:mx-0">
             <Input
               type="email"
               placeholder="Enter your email"
@@ -76,16 +100,22 @@ const Hero = () => {
               onChange={(e) => setEmail(e.target.value)}
               className="flex-1 h-12 rounded-full border-2 border-pink-200 focus:border-pink-400"
               required
-              disabled={isLoading}
+              disabled={isSubmitting}
             />
             <Button 
               type="submit"
               className="h-12 px-8 bg-pink-500 hover:bg-pink-600 text-white rounded-full font-semibold"
-              disabled={isLoading}
+              disabled={isSubmitting}
             >
-              {isLoading ? "Enviando..." : "Get Notified"}
+              {isSubmitting ? "Enviando..." : "Get Notified"}
             </Button>
           </form>
+
+          {error && (
+            <p className="text-red-500 text-sm text-center lg:text-left">
+              {error}
+            </p>
+          )}
           
           <p className="text-sm text-gray-500">
             Be the first to have HELWA FLAT. Join 250+ women already waiting.
