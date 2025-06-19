@@ -24,9 +24,14 @@ const Hero = () => {
       if (error) throw error;
 
       // 2. Enviar email de bienvenida
-      await supabase.functions.invoke('send-welcome-email', {
-        body: { email }
-      });
+      try {
+        await supabase.functions.invoke('send-welcome-email', {
+          body: { email }
+        });
+      } catch (emailError) {
+        console.log('Email function error (non-critical):', emailError);
+        // Don't fail the whole process if email fails
+      }
       
       setIsSubmitted(true);
       setEmail('');
