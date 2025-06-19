@@ -12,7 +12,7 @@ export const testSupabaseConnection = async () => {
       .select('count', { count: 'exact', head: true });
     
     if (connectionError) {
-      console.error("❌ Connection failed:", connectionError);
+      console.error("❌ Connection failed:", connectionError.message || connectionError);
       return false;
     }
     console.log("✅ Connection successful");
@@ -25,7 +25,7 @@ export const testSupabaseConnection = async () => {
       .limit(1);
     
     if (tableError) {
-      console.error("❌ Table access failed:", tableError);
+      console.error("❌ Table access failed:", tableError.message || tableError);
       return false;
     }
     console.log("✅ Table structure correct");
@@ -39,7 +39,8 @@ export const testSupabaseConnection = async () => {
       .select();
     
     if (insertError) {
-      console.error("❌ Insert failed:", insertError);
+      console.error("❌ Insert failed:", insertError.message || insertError);
+      console.error("Full error details:", JSON.stringify(insertError, null, 2));
       return false;
     }
     console.log("✅ Insert permissions working");
@@ -94,5 +95,7 @@ export const checkEnvironmentVariables = () => {
   }
   
   console.log("✅ All environment variables present");
+  console.log("📍 Supabase URL:", import.meta.env.VITE_SUPABASE_URL);
+  console.log("🔑 Anon Key present:", !!import.meta.env.VITE_SUPABASE_ANON_KEY);
   return true;
 };
